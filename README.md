@@ -9,7 +9,7 @@ China TurboHUD plugin + executable
 ## How to use
 
 - download exe and plugin
-- copy snts folder into plugin folder of lightning mod
+- create snts folder in plugin folder of lightning mod and copy SntsToolAdapter.cs into it
 - restart lightning mod
 - always start exe after lightning mod is started
 - always close exe first before starting or restarting lightning mod
