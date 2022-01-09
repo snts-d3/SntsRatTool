@@ -19,6 +19,8 @@ namespace Turbo.Plugins.Default
         private MemoryMappedFile _mmf;
         private IFont watermark;
         private IMonster monsterToTarget;
+        private int numMonstersInBoneArmorRange;
+        private int numNonTrashMonstersInBoneArmorRange;
 
         private const String SHARED_FILE = "SNTS_TOOL_SHARED_FILE";
 
@@ -43,12 +45,14 @@ namespace Turbo.Plugins.Default
 
         public void PaintTopInGame(ClipState clipState)
         { 
+                
             /*
             var isInRift = Convert.ToString(Hud.Game.SpecialArea == SpecialArea.Rift || Hud.Game.SpecialArea == SpecialArea.GreaterRift);
-            var numMonstens = Convert.ToString(Hud.Game.AliveMonsters.Count()).PadLeft(4).Replace(' ', '0');
+            var numMonsters = Convert.ToString(Hud.Game.AliveMonsters.Count()).PadLeft(4).Replace(' ', '0');
 
             watermark = Hud.Render.CreateFont("tahoma", 10, 155, 200, 0, 0, true, false, false);
-            watermark.DrawText(watermark.GetTextLayout(numMonstens), Hud.Window.Size.Width * 0.2f, Hud.Window.Size.Height * 0.5f);
+            watermark.DrawText(watermark.GetTextLayout(Convert.ToString(numMonstersInBoneArmorRange)), Hud.Window.Size.Width * 0.2f, Hud.Window.Size.Height * 0.47f);
+            watermark.DrawText(watermark.GetTextLayout(numMonsters), Hud.Window.Size.Width * 0.2f, Hud.Window.Size.Height * 0.5f);
             watermark.DrawText(
                 monsterToTarget == null ? "" : GetMonsterInfo(monsterToTarget), 
                 Hud.Window.Size.Width * 0.2f, Hud.Window.Size.Height * 0.53f);
@@ -59,8 +63,7 @@ namespace Turbo.Plugins.Default
                     watermark.GetTextLayout(GetMonsterInfo(elite)), 
                     Hud.Window.Size.Width * 0.65f, Hud.Window.Size.Height * (offset));
                 offset += 0.02f;
-            }
-            */
+            }*/
         }
         
         public void BeforeRender()
@@ -84,9 +87,6 @@ namespace Turbo.Plugins.Default
                 actor.SummonerAcdDynamicId == Hud.Game.Me.SummonerId);
             int numberOfSkeleMages = skeletonMageActors.Count();
             int numMonsters = Hud.Game.AliveMonsters.Count();
-
-            
-
 
 			IPlayerSkill skeletonMageSkill = Hud.Game.Me.Powers.UsedNecromancerPowers.SkeletalMage;
             IBuff skeletonMageBuff = null;
@@ -116,7 +116,7 @@ namespace Turbo.Plugins.Default
                     && monster.CurHealth > monsterToTarget.CurHealth
                     // TODO: shielding etc.
                     //&& !monster.Invulnerable
-                    ) 
+                    )
                 {
                     monsterToTarget = monster;
                 }
@@ -132,6 +132,14 @@ namespace Turbo.Plugins.Default
                 targetY = (int) screenCoord.Y;
                 monsterPriority = GetMonsterPriority(monsterToTarget);
             }
+
+
+			IPlayerSkill boneArmorSkill = Hud.Game.Me.Powers.UsedNecromancerPowers.BoneArmor;
+            numMonstersInBoneArmorRange = Hud.Game.AliveMonsters
+                .Where(m => m.CentralXyDistanceToMe < 15).Count(); 
+            numNonTrashMonstersInBoneArmorRange = Hud.Game.AliveMonsters
+                .Where(m => GetMonsterPriority(monsterToTarget) > 0 && m.CentralXyDistanceToMe < 15).Count();
+
             using (MemoryMappedViewStream stream = _mmf.CreateViewStream()) 
             {
                 BinaryWriter writer = new BinaryWriter(stream);
@@ -149,11 +157,18 @@ namespace Turbo.Plugins.Default
                 writer.Write(secondsMageDuration);
                 writer.Write(numberOfSkeleMages == null ? 0 : numberOfSkeleMages);
                 writer.Write(numMonsters == null ? 0 : numMonsters);
+                writer.Write(numMonstersInBoneArmorRange);
+                writer.Write(numNonTrashMonstersInBoneArmorRange);
+                writer.Write(boneArmorSkill == null ? false : boneArmorSkill.IsOnCooldown);
             }
         }
 
         private int GetMonsterPriority(IMonster monster) 
         {
+            if (monster == null || monster.SnoMonster == null) {
+                return 0;
+            }
+
             if (monster.SnoMonster.Priority == MonsterPriority.boss)
             {
                 return 3;

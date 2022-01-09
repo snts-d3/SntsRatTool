@@ -19,6 +19,9 @@ typedef struct {
     int secondsMageDuration;
     int numberOfSkeletonMages;
     int numberOfMonsters;
+    int numberOfMonstersInBoneArmorRange;
+    int numberOfNonTrashMonstersInBoneArmorRange;
+    bool isBoneArmorOnCooldown;
 } SharedFileContents;
 
 std::queue<std::chrono::system_clock::time_point> _skeletonMageSpawnTimes;
@@ -88,6 +91,14 @@ int main()
                 Sleep(100);
                 SendMessage(handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(midX - d, midY));
                 SendMessage(handle, WM_LBUTTONUP, 0, MAKELPARAM(midX - d, midY));
+            }
+
+            int key3 = 0x33;
+            bool isCastBoneArmor = !contents->isBoneArmorOnCooldown
+                && (contents->numberOfMonstersInBoneArmorRange > 2 || contents->numberOfNonTrashMonstersInBoneArmorRange > 0);
+            if (isCastBoneArmor) {
+                SendMessage(handle, WM_KEYDOWN, key3, NULL);
+                SendMessage(handle, WM_KEYUP, key3, NULL);
             }
 
             // auto aim cast mages
