@@ -19,6 +19,7 @@ China TurboHUD plugin + executable
 - restart lightning mod
 - always start exe after lightning mod is started
 - always close exe first before starting or restarting lightning mod
+- !!important!! disable all wiggle and auto cast skeletal mages macros from other tools like godly or lightning mod intelligent macros
 
 ## Manual
 
