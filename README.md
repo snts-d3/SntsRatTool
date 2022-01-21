@@ -12,6 +12,7 @@ China TurboHUD plugin + executable
 - land of the dead on left click
 - force move on space
 - skeletal mages on right click
+- bone armor on key 3
 
 ## How to use
 
@@ -33,7 +34,7 @@ China TurboHUD plugin + executable
 - 2. prio: closest target
 
 ## Bone Armor
-- cast when elite or > 3 trash monsters in 15 yards range
+- cast when elite or >= 3 trash monsters in 15 yards range
 
 ## Open Issues
 
