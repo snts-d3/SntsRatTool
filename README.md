@@ -12,7 +12,7 @@ China TurboHUD plugin + executable
 - land of the dead on left click
 - force move on space
 - skeletal mages on right click
-- bone armor on key 3
+- (optional) bone armor on key 3
 
 ## How to use
 
@@ -37,6 +37,23 @@ China TurboHUD plugin + executable
 - cast when elite or >= 3 trash monsters in 15 yards range
 
 ## Open Issues
-
 - wiggle simulates left click -> standing on pylons while not using force move will click them
 - spawning mages simulates right click -> might rightclick into chat or on portrait
+- hiding rift progress bar under minimap will disable the tool
+
+## Configuration
+- edit the following entries in SntsToolAdapter.cs:
+´´´
+/* CONFIGURATION */
+// bone armor disabled by default
+private const bool ENABLE_BONE_ARMOR_MACRO = false;
+// wiggle enabled by default
+private const bool ENABLE_WIGGLE = true;
+// auto aim enabled by default
+private const bool ENABLE_AUTO_AIM = true;
+// when 10 mages are up, refresh then when X seconds remaining
+private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
+// scan range of monsters for auto aim
+private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
+/* END CONFIGURATION */
+´´´
