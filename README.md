@@ -5,6 +5,7 @@ China TurboHUD plugin + executable
 
 - wiggle
 - auto aim cast mages
+- bone armor macro
 
 ## Requirements
 
@@ -19,12 +20,20 @@ China TurboHUD plugin + executable
 - restart lightning mod
 - always start exe after lightning mod is started
 - always close exe first before starting or restarting lightning mod
-- !!important!! disable all wiggle and auto cast skeletal mages macros from other tools like godly or lightning mod intelligent macros
+- !!important!! disable all wiggle / auto cast skeletal mages / bone armor macros from other tools like godly or lightning mod intelligent macros
 
-## Manual
+## Wiggle
 
 - pressing force move or force stand still will stop wiggle temporarely
+
+## Auto Aim Skeletal Mages
+- cast on max essence
 - mages will be refreshed when < 10 mages or remaining duration < 4 seconds
+- 1. prio: rift guardian > blue = yellow > juggernaut > minions > trash
+- 2. prio: closest target
+
+## Bone Armor
+- cast when elite or > 3 trash monsters in 15 yards range
 
 ## Open Issues
 
