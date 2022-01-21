@@ -63,6 +63,7 @@ private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
 ### 0.1.0
 - improved auto aim algorithm
 - bone armor macro
+- customization by configuration
 
 ### 0.0.0
 - first version
