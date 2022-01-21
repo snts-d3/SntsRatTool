@@ -16,6 +16,16 @@ namespace Turbo.Plugins.Default
 
     public class SntsToolAdapter : BasePlugin, IBeforeRenderHandler, IInGameTopPainter
     {
+        /* CONFIGURATION */
+
+        private const bool ENABLE_BONE_ARMOR_MACRO = true;
+        private const bool ENABLE_WIGGLE = true;
+        private const bool ENABLE_AUTO_AIM = true;
+        private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
+        private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
+
+        /* END CONFIGURATION */
+
         private MemoryMappedFile _mmf;
         private IFont watermark;
         private IMonster monsterToTarget;
@@ -63,7 +73,8 @@ namespace Turbo.Plugins.Default
                     watermark.GetTextLayout(GetMonsterInfo(elite)), 
                     Hud.Window.Size.Width * 0.65f, Hud.Window.Size.Height * (offset));
                 offset += 0.02f;
-            }*/
+            }
+            */
         }
         
         public void BeforeRender()
@@ -100,27 +111,26 @@ namespace Turbo.Plugins.Default
                 skeletonMageTimeLeft = (int) skeletonMageBuff.TimeLeftSeconds[5];
             }
 
+            var monstersInRange = Hud.Game.AliveMonsters
+                .Where(monster => monster.Attackable && monster.CentralXyDistanceToMe <= AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS);
+            var highestPriorityInRange = monstersInRange
+                .Select(monster => GetMonsterPriority(monster))
+                .DefaultIfEmpty(0)
+                .Max();
+            var monstersWithHighestPriority = monstersInRange
+                .Where(monster => GetMonsterPriority(monster) == highestPriorityInRange);
             monsterToTarget = null;
-            foreach (var monster in Hud.Game.AliveMonsters) 
+            monstersWithHighestPriority.ForEach(monster =>
             {
-                if (!monster.Attackable || monster.CentralXyDistanceToMe > 60) 
-                {
-                    continue;
-                }
                 if (monsterToTarget == null) 
                 {
                     monsterToTarget = monster;
                 }
-                if (
-                    GetMonsterPriority(monster) > GetMonsterPriority(monsterToTarget) 
-                    && monster.CurHealth > monsterToTarget.CurHealth
-                    // TODO: shielding etc.
-                    //&& !monster.Invulnerable
-                    )
+                if (monster.CentralXyDistanceToMe < monsterToTarget.CentralXyDistanceToMe) 
                 {
                     monsterToTarget = monster;
                 }
-            }
+            });
 
             int targetX = 900, targetY = 500;
             bool hasTarget = monsterToTarget != null;
@@ -138,7 +148,7 @@ namespace Turbo.Plugins.Default
             numMonstersInBoneArmorRange = Hud.Game.AliveMonsters
                 .Where(m => m.CentralXyDistanceToMe < 15).Count(); 
             numNonTrashMonstersInBoneArmorRange = Hud.Game.AliveMonsters
-                .Where(m => GetMonsterPriority(monsterToTarget) > 0 && m.CentralXyDistanceToMe < 15).Count();
+                .Where(m => GetMonsterPriority(m) > 0 && m.CentralXyDistanceToMe < 15).Count();
 
             using (MemoryMappedViewStream stream = _mmf.CreateViewStream()) 
             {
@@ -151,15 +161,17 @@ namespace Turbo.Plugins.Default
                 writer.Write(targetX);
                 writer.Write(targetY);
                 writer.Write(skeletonMageTimeLeft);
-                int secondsLeftToRecastMage = 4;
                 int secondsMageDuration = 10;
-                writer.Write(secondsLeftToRecastMage);
+                writer.Write(AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE);
                 writer.Write(secondsMageDuration);
                 writer.Write(numberOfSkeleMages == null ? 0 : numberOfSkeleMages);
                 writer.Write(numMonsters == null ? 0 : numMonsters);
                 writer.Write(numMonstersInBoneArmorRange);
                 writer.Write(numNonTrashMonstersInBoneArmorRange);
                 writer.Write(boneArmorSkill == null ? false : boneArmorSkill.IsOnCooldown);
+                writer.Write(ENABLE_BONE_ARMOR_MACRO);
+                writer.Write(ENABLE_WIGGLE);
+                writer.Write(ENABLE_AUTO_AIM);
             }
         }
 
@@ -171,12 +183,17 @@ namespace Turbo.Plugins.Default
 
             if (monster.SnoMonster.Priority == MonsterPriority.boss)
             {
-                return 3;
+                return 4;
+            }
+
+            if (monster.AffixSnoList.Any(m => m.Affix.Equals(MonsterAffix.Juggernaut)))
+            {
+                return 2;
             }
 
             if (monster.Rarity == ActorRarity.Champion || monster.Rarity == ActorRarity.Rare)
             {
-                return 2;
+                return 3;
             }
 
             if (monster.Rarity == ActorRarity.RareMinion)
