@@ -30,8 +30,8 @@ China TurboHUD plugin + executable
 ## Auto Aim Skeletal Mages
 - cast on max essence
 - mages will be refreshed when < 10 mages or remaining duration < 4 seconds
-- 1. prio: rift guardian > blue = yellow > juggernaut > minions > trash
-- 2. prio: closest target
+- prio 1: rift guardian > blue = yellow > juggernaut > minions > trash
+- prio 2: closest target
 
 ## Bone Armor
 - cast when elite or >= 3 trash monsters in 15 yards range
