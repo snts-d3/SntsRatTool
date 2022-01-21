@@ -22,6 +22,9 @@ typedef struct {
     int numberOfMonstersInBoneArmorRange;
     int numberOfNonTrashMonstersInBoneArmorRange;
     bool isBoneArmorOnCooldown;
+    bool ENABLE_BONE_ARMOR_MACRO;
+    bool ENABLE_WIGGLE;
+    bool ENABLE_AUTO_AIM;
 } SharedFileContents;
 
 std::queue<std::chrono::system_clock::time_point> _skeletonMageSpawnTimes;
@@ -85,49 +88,70 @@ int main()
         if (contents->isInRift) {
 
             // wiggle
-            if (contents->isHexingPantsEquipped && !(GetKeyState(' ') & 0x8000)) {
-                SendMessage(handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(midX + d, midY));
-                SendMessage(handle, WM_LBUTTONUP, 0, MAKELPARAM(midX + d, midY));
-                Sleep(100);
-                SendMessage(handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(midX - d, midY));
-                SendMessage(handle, WM_LBUTTONUP, 0, MAKELPARAM(midX - d, midY));
-            }
-
-            int key3 = 0x33;
-            bool isCastBoneArmor = !contents->isBoneArmorOnCooldown
-                && (contents->numberOfMonstersInBoneArmorRange > 2 || contents->numberOfNonTrashMonstersInBoneArmorRange > 0);
-            if (isCastBoneArmor) {
-                SendMessage(handle, WM_KEYDOWN, key3, NULL);
-                SendMessage(handle, WM_KEYUP, key3, NULL);
-            }
-
-            // auto aim cast mages
-            if (contents->hasMaxEssence) {
-                // dont recast on trash if mages up but spam on elite
-                bool hasEliteTarget = contents->monsterPriority >= 2 && contents->hasTarget;
-                bool hasAllMagesUp = contents->numberOfSkeletonMages >= 10;
-                bool needsRefresh = false;
-                if (!_skeletonMageSpawnTimes.empty()) {
-                    std::chrono::system_clock::time_point timestampOfMageFirstCasted = _skeletonMageSpawnTimes.front();
-                    auto secondsSinceFirstActiveMageCasted = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - timestampOfMageFirstCasted).count();
-
-                    needsRefresh = (contents->secondsMageDuration - secondsSinceFirstActiveMageCasted) < contents->secondsLeftToRecastMage;
+            if (contents->ENABLE_WIGGLE) {
+                if (contents->isHexingPantsEquipped && !(GetKeyState(' ') & 0x8000)) {
+                    /*
+                    SendMessage(handle, WM_MBUTTONDOWN, MK_MBUTTON, MAKELPARAM(midX + d, midY));
+                    SendMessage(handle, WM_MBUTTONUP, 0, MAKELPARAM(midX + d, midY));
+                    Sleep(100);
+                    SendMessage(handle, WM_MBUTTONDOWN, MK_MBUTTON, MAKELPARAM(midX - d, midY));
+                    SendMessage(handle, WM_MBUTTONUP, 0, MAKELPARAM(midX - d, midY));
+                    */
+                    SendMessage(handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(midX + d, midY));
+                    SendMessage(handle, WM_LBUTTONUP, 0, MAKELPARAM(midX + d, midY));
+                    Sleep(100);
+                    SendMessage(handle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(midX - d, midY));
+                    SendMessage(handle, WM_LBUTTONUP, 0, MAKELPARAM(midX - d, midY));
                 }
-                if (hasEliteTarget || !hasAllMagesUp || needsRefresh) {
-                    _skeletonMageSpawnTimes.push(std::chrono::system_clock::now());
-                    if (_skeletonMageSpawnTimes.size() > 10) {
-                        _skeletonMageSpawnTimes.pop();
-                    }
+            }
 
-                    SendMessage(handle, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(contents->targetX, contents->targetY));
-                    SendMessage(handle, WM_RBUTTONUP, 0, MAKELPARAM(contents->targetX, contents->targetY));
+            if (contents->ENABLE_BONE_ARMOR_MACRO) {
+                int key3 = 0x33;
+                bool isCastBoneArmor = !contents->isBoneArmorOnCooldown
+                    && (contents->numberOfMonstersInBoneArmorRange > 2 || contents->numberOfNonTrashMonstersInBoneArmorRange > 0);
+                if (isCastBoneArmor) {
+                    SendMessage(handle, WM_KEYDOWN, key3, NULL);
+                    SendMessage(handle, WM_KEYUP, key3, NULL);
+                }
+            }
+
+            if (contents->ENABLE_AUTO_AIM) {
+                // auto aim cast mages
+                if (contents->hasMaxEssence) {
+                    // dont recast on trash if mages up but spam on elite
+                    bool hasEliteTarget = contents->monsterPriority >= 2 && contents->hasTarget;
+                    bool hasAllMagesUp = contents->numberOfSkeletonMages >= 10;
+                    bool needsRefresh = false;
+                    if (!_skeletonMageSpawnTimes.empty()) {
+                        std::chrono::system_clock::time_point timestampOfMageFirstCasted = _skeletonMageSpawnTimes.front();
+                        auto secondsSinceFirstActiveMageCasted = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - timestampOfMageFirstCasted).count();
+
+                        needsRefresh = (contents->secondsMageDuration - secondsSinceFirstActiveMageCasted) < contents->secondsLeftToRecastMage;
+                    }
+                    if (hasEliteTarget || !hasAllMagesUp || needsRefresh) {
+                        _skeletonMageSpawnTimes.push(std::chrono::system_clock::now());
+                        if (_skeletonMageSpawnTimes.size() > 10) {
+                            _skeletonMageSpawnTimes.pop();
+                        }
+
+                        SendMessage(handle, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(contents->targetX, contents->targetY));
+                        SendMessage(handle, WM_RBUTTONUP, 0, MAKELPARAM(contents->targetX, contents->targetY));
+                    }
                 }
             }
 
             Sleep(100);
         }
         else {
-            Sleep(500);
+            /*
+            std::cout << "ENABLE_AUTO_AIM: " << contents->ENABLE_AUTO_AIM << std::endl;
+            std::cout << "ENABLE_BONE_ARMOR_MACRO: " << contents->ENABLE_BONE_ARMOR_MACRO << std::endl;
+            std::cout << "ENABLE_WIGGLE: " << contents->ENABLE_WIGGLE << std::endl;
+            std::cout << "secondsLeftToRecastMage: " << contents->secondsLeftToRecastMage << std::endl;
+            std::cout << "secondsMageDuration: " << contents->secondsMageDuration << std::endl;
+            std::cout << "isHexingPantsEquipped: " << contents->isHexingPantsEquipped << std::endl;
+            */
+            //Sleep(500);
         }
     }
 
