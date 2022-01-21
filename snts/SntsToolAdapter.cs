@@ -18,7 +18,7 @@ namespace Turbo.Plugins.Default
     {
         /* CONFIGURATION */
 
-        private const bool ENABLE_BONE_ARMOR_MACRO = true;
+        private const bool ENABLE_BONE_ARMOR_MACRO = false;
         private const bool ENABLE_WIGGLE = true;
         private const bool ENABLE_AUTO_AIM = true;
         private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
