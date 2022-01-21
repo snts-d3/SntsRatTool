@@ -43,7 +43,7 @@ China TurboHUD plugin + executable
 
 ## Configuration
 - edit the following entries in SntsToolAdapter.cs:
-´´´
+```
 /* CONFIGURATION */
 // bone armor disabled by default
 private const bool ENABLE_BONE_ARMOR_MACRO = false;
@@ -56,4 +56,4 @@ private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
 // scan range of monsters for auto aim
 private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
 /* END CONFIGURATION */
-´´´
+```
