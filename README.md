@@ -57,3 +57,12 @@ private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
 private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
 /* END CONFIGURATION */
 ```
+
+## Version History
+
+### 0.1.0
+- improved auto aim algorithm
+- bone armor macro
+
+### 0.0.0
+- first version
