@@ -12,7 +12,7 @@ China TurboHUD plugin + executable
 - land of the dead on left click
 - force move on space
 - skeletal mages on right click
-- (optional) bone armor on key 3
+- bone armor on key 3 (optional, macro is disabled by default, see configuration)
 
 ## How to use
 
