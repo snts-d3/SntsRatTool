@@ -18,11 +18,12 @@ namespace Turbo.Plugins.Default
     {
         /* CONFIGURATION */
 
-        private const bool ENABLE_BONE_ARMOR_MACRO = false;
+        private const bool ENABLE_BONE_ARMOR_MACRO = true;
         private const bool ENABLE_WIGGLE = true;
         private const bool ENABLE_AUTO_AIM = true;
         private const int AUTO_AIM_SECONDS_LEFT_TO_RECAST_MAGE = 4;
         private const int AUTO_AIM_SCAN_RANGE_IN_INGAME_YARDS = 60;
+        private const int BONE_ARMOR_TRIGGER_RANGE_IN_YARDS = 20;
 
         /* END CONFIGURATION */
 
@@ -146,9 +147,9 @@ namespace Turbo.Plugins.Default
 
 			IPlayerSkill boneArmorSkill = Hud.Game.Me.Powers.UsedNecromancerPowers.BoneArmor;
             numMonstersInBoneArmorRange = Hud.Game.AliveMonsters
-                .Where(m => m.CentralXyDistanceToMe < 15).Count(); 
+                .Where(m => m.CentralXyDistanceToMe < BONE_ARMOR_TRIGGER_RANGE_IN_YARDS).Count(); 
             numNonTrashMonstersInBoneArmorRange = Hud.Game.AliveMonsters
-                .Where(m => GetMonsterPriority(m) > 0 && m.CentralXyDistanceToMe < 15).Count();
+                .Where(m => m.Attackable && GetMonsterPriority(m) > 0 && m.CentralXyDistanceToMe < BONE_ARMOR_TRIGGER_RANGE_IN_YARDS).Count();
 
             using (MemoryMappedViewStream stream = _mmf.CreateViewStream()) 
             {
